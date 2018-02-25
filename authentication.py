@@ -2,7 +2,7 @@ import datetime, random
 from firebase import firebase
 import pysal
 from pysal.cg.kdtree import KDTree
-import pyodbc
+#import pyodbc
 
 class Firebase:
     DATABASE_URL = "https://hackill-b8ec1.firebaseio.com/"
@@ -29,19 +29,23 @@ class Firebase:
         self.firebase.post(str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour)+'/'+user_id,
                            data={'lat': lat, 'long': long, 'locKey':lat_long_key})
 
-        server = 'walkablebiserver1.database.windows.net'
-        database = 'walkable'
-        username = 'walkable'
-        password = 'walkhere123!'
-        driver = '{ODBC Driver 13 for SQL Server}'
-        cnxn = pyodbc.connect(
-            'DRIVER=' + driver + ';PORT=1433;SERVER=' + server + ';PORT=1443;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
-        cursor = cnxn.cursor()
-        user_id = str(user_id)
-
-        cursor.execute("INSERT INTO traffic VALUES (?,?,?,?)",(user_id,oldLat,oldLong,dt))
-        cnxn.commit()
-
+    '''
+    
+    server = 'walkablebiserver1.database.windows.net'
+            database = 'walkable'
+            username = 'walkable'
+            password = 'walkhere123!'
+            driver = '{ODBC Driver 13 for SQL Server}'
+            cnxn = pyodbc.connect(
+                'DRIVER=' + driver + ';PORT=1433;SERVER=' + server + ';PORT=1443;DATABASE=' + database + ';UID=' + username + ';PWD=' + password)
+            cursor = cnxn.cursor()
+            user_id = str(user_id)
+    
+            cursor.execute("INSERT INTO traffic VALUES (?,?,?,?)",(user_id,oldLat,oldLong,dt))
+            cnxn.commit()
+    
+    
+    '''
     def getIncidents(self,current_point):
         incident_result = self.firebase.get("incident", None)
         #print(incident_result)
@@ -76,6 +80,10 @@ class Firebase:
         self.firebase.put('/incident/'+lat_long_key, type, data={'loc': type})
         self.firebase.post('/incidentType/'+type,
                            data={'lat': lat, 'long': long, 'locKey':lat_long_key, 'type': type})
+
+
+        '''
+        
         server = 'walkablebiserver1.database.windows.net'
         database = 'walkable'
         username = 'walkable'
@@ -86,6 +94,10 @@ class Firebase:
         cursor = cnxn.cursor()
         cursor.execute("INSERT INTO incident VALUES (?,?, ?,?)",(oldLat,oldLong,type,dt))
         cnxn.commit()
+        
+        
+        '''
+
 
     def getTraffic(self,current_point):
         locations_result = self.firebase.get("location", None)
@@ -93,8 +105,8 @@ class Firebase:
         locations = []
         for i in locations_result:
             locations.append(self.decryptLocation(i))
-        #print(locations)
         tree = KDTree(locations, distance_metric='Arc', radius=pysal.cg.RADIUS_EARTH_MILES)
+
 
         # get all points within 1 mile of 'current_point'
         indices = tree.query_ball_point(current_point, 5)

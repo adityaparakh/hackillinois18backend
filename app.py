@@ -81,6 +81,7 @@ def poopyPie():
     input_json = request.get_json(force=True)
     for i in input_json:
         traffic.append(my_data(i))
+    print(traffic)
     return jsonify({'traffic': traffic})
 
 def my_data(input_json):
@@ -148,7 +149,7 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=80)
+    app.run(debug=True)
 
 
 
