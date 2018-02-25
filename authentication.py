@@ -123,8 +123,9 @@ class Firebase:
             if key in locations_result:
                 if isinstance(locations_result[key],dict):
                     userId = list(locations_result[key].keys())[0]
-                    if userId in usr:
-                        count += 1
+                    if userId:
+                        if userId in usr:
+                            count += 1
         return count
 
     def getCrazyHeat(self,lat,lng):
