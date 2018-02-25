@@ -33,7 +33,7 @@ class Firebase:
         lat_long_key = str(int(lat))+'-'+str(int(long))
         dt = datetime.datetime.now()
         self.firebase.put('/incident/'+lat_long_key, type, data={'loc': type})
-        self.firebase.post('/incidentType/'+type,
+        self.firebase.post('/incidentType/'+type+'/'+lat_long_key,
                            data={'lat': lat, 'long': long, 'locKey':lat_long_key, 'type': type})
 
     def getTraffic(self,current_point):
@@ -43,7 +43,6 @@ class Firebase:
         for i in locations_result:
             #print(i)
             locations.append(self.decryptLocation(i))
-        #print(locations)
         tree = KDTree(locations, distance_metric='Arc', radius=pysal.cg.RADIUS_EARTH_MILES)
 
         # get all points within 1 mile of 'current_point'
