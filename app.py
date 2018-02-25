@@ -6,9 +6,10 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 
-import os
+import os, datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from authentication import Firebase
+from firebase import firebase
 
 app = Flask(__name__)
 
@@ -78,13 +79,26 @@ def my_nearby_endpoint():
 @app.route('/get/traffic', methods=['POST'])
 def poopyPie():
     traffic = []
+    DATABASE_URL = "https://hackill-b8ec1.firebaseio.com/"
+    firebasel = firebase.FirebaseApplication(DATABASE_URL, None)
     input_json = request.get_json(force=True)
+
+    locations_result = firebasel.get("location", None)
+    locations = []
+    dt = datetime.datetime.now()
+    year = dt.year
+    month = dt.month
+    day = dt.day
+    hour = dt.hour
+    usr = firebasel.get(str(year) + '/' + str(month) + '/' + str(day) + '/' + str(hour), None)
+    for i in locations_result:
+        locations.append(decryptLocation(i))
     for i in input_json:
-        traffic.append(my_data(i))
+        traffic.append(my_data(i,locations_result,locations,usr))
     print(traffic)
     return jsonify({'traffic': traffic})
 
-def my_data(input_json):
+def my_data(input_json,locations_result,locations,usr):
     base = Firebase()
 
     data = []
@@ -95,12 +109,22 @@ def my_data(input_json):
     for i in range(len(data)):
         #print(base.getTraffic(data[i]))
         if i%5 == 0:
-            res.append(base.getTraffic(data[i]))
+            print(data[i])
+            res.append(base.getTraffic(data[i],locations_result,locations,usr))
         if i%5 != 0 and i == len(data)-1:
-            res.append(base.getTraffic((data[i])))
+            print(data[i])
+            res.append(base.getTraffic(data[i],locations_result,locations,usr))
     total = sum(res)
     traffic = total/len(res)
     return traffic
+
+def decryptLocation(user_id):
+    lolz = user_id.split("-")
+    lat = lolz[0]
+    long = lolz[1]
+    lat = round((float(lat)/100000)-90,6)
+    long = round((float(long)/100000)-180,6)
+    return (lat,long)
 
 @app.route('/get/incident', methods=['POST'])
 def my_data_event():
@@ -110,7 +134,6 @@ def my_data_event():
     for i in input_json:
         data.append((i["lat"], i["lng"]))
     res = base.getIncidents(data[0])
-
     return jsonify({'incidents': res})
 
 

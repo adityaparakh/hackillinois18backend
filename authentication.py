@@ -99,18 +99,16 @@ class Firebase:
         '''
 
 
-    def getTraffic(self,current_point):
-        locations_result = self.firebase.get("location", None)
+    def getTraffic(self,current_point,locations_result,locations,usr):
+
         #print(locations_result)
-        locations = []
-        for i in locations_result:
-            locations.append(self.decryptLocation(i))
+
         tree = KDTree(locations, distance_metric='Arc', radius=pysal.cg.RADIUS_EARTH_MILES)
 
 
         # get all points within 1 mile of 'current_point'
         indices = tree.query_ball_point(current_point, 5)
-        #print(indices)
+        print(indices)
         count = 0
         dt = datetime.datetime.now()
         year = dt.year
@@ -125,8 +123,7 @@ class Firebase:
             if key in locations_result:
                 if isinstance(locations_result[key],dict):
                     userId = list(locations_result[key].keys())[0]
-                    result = self.firebase.get(str(year) +'/'+str(month)+'/'+str(day)+'/'+str(hour) + '/' +userId, None)
-                    if result != 0:
+                    if userId in usr:
                         count += 1
         return count
 
