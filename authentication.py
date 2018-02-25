@@ -118,6 +118,8 @@ class Firebase:
 
         userid = []
 
+        print(usr)
+
         for i in indices:
             key = self.encryptLocation(locations[i])
             if key in locations_result:
