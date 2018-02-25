@@ -118,16 +118,15 @@ class Firebase:
 
         userid = []
 
-        print(usr)
-
         for i in indices:
             key = self.encryptLocation(locations[i])
             if key in locations_result:
                 if isinstance(locations_result[key],dict):
                     userId = list(locations_result[key].keys())[0]
                     if userId:
-                        if userId in usr:
-                            count += 1
+                        if usr:
+                            if userId in usr:
+                                count += 1
         return count
 
     def getCrazyHeat(self,lat,lng):
